@@ -2,6 +2,7 @@ from argparse import ArgumentParser
 from pathlib import Path
 import tomllib
 from datetime import datetime
+from copy import deepcopy
 import csv            
 
 def read_csv(path: str, config: dict):
@@ -40,21 +41,37 @@ def write_csv(handle, table: dict, config: dict):
     writer.writeheader()
     writer.writerows(export_table) 
 
+def combine_maps(a: dict, b: dict):
+    # note that this isn't recursive and therefore won't combine maps fully, but it's good enough for our usecase
+    new_map = deepcopy(a)
+    for k in b:
+        new_map[k] = b[k]
+    return new_map 
+
 def main():
     parser = ArgumentParser("Bank Normaliser")
     parser.add_argument("input")
     parser.add_argument("bank")
     parser.add_argument("--output","-o", default="./output")
-    parser.add_argument("--grammars", default="./grammars.toml")
+    parser.add_argument("--grammars", default="./grammars")
     args = parser.parse_args()
 
-    with open(args.grammars, "rb") as f:
-        grammars = tomllib.load(f)
+    grammar_folder = Path(args.grammars)
+    if not grammar_folder.is_dir():
+        raise ValueError(f"Grammar folder {args.grammars} is not a directory.")
 
-    if args.bank not in grammars:
+    grammars = grammar_folder.glob("**/*.toml")
+    master_grammar = dict()
+
+    for g in grammars:
+        with open(g, "rb") as f:
+            cur_g = tomllib.load(f)
+        master_grammar = combine_maps(master_grammar,cur_g)
+ 
+    if args.bank not in master_grammar:
         raise ValueError(f"Couldn't find {args.bank} in grammars.")
 
-    import_config = grammars[args.bank]["import"]
+    import_config = master_grammar[args.bank]["import"]
     filetype = import_config["filetype"]
     read_strats = {
         "csv": read_csv
@@ -62,7 +79,7 @@ def main():
 
     table = read_strats[filetype](args.input, import_config) 
 
-    output_config = grammars[args.bank]["export"]
+    output_config = master_grammar[args.bank]["export"]
     output_path = Path(args.output)
     if output_path.is_dir():
         output_path = output_path / "ynab.csv"
