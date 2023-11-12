@@ -1,0 +1,29 @@
+[cathay.import]
+filetype = "csv"
+encoding = "big5"
+fields = ["Transaction Date","Time","Withdrawal","Deposit","Balance", "Description", "Destination Account", "Remark"]
+trim_top = 2
+date_column = "Transaction Date"
+date_format = "%Y%m%d"
+
+[cathay.export]
+
+date_column = "Date"
+date_format = "%Y-%m-%d"
+column_map = {"Transaction Date" = "Date", "Withdrawal" = "Outflow","Deposit" = "Inflow","Description" = "Memo","Remark" = "Payee"}
+fields = ["Date", "Payee", "Inflow", "Outflow", "Memo"]
+
+[esun.import]
+filetype = "csv"
+encoding = "utf-8"
+trim_top = 11	
+fields = ["Transaction Date", "Transaction Time", "Summary", "Withdraw", "Deposit", "Account Balance", "Passbook Remarks", "Counterparty", "Bank Code / Remark"]
+date_column = "Transaction Date"
+date_format = "%Y/%m/%d"
+
+[esun.export]
+
+date_column = "Date"
+date_format = "%Y-%m-%d"
+column_map = {"Transaction Date" = "Date","Summary" = "Memo","Withdraw" = "Outflow","Deposit" = "Inflow","Passbook Remarks" = "Payee"}
+fields = ["Date", "Payee", "Inflow", "Outflow", "Memo"]
