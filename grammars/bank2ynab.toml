@@ -1,13 +1,13 @@
-[cathay.import]
+[easybank_cc.import]
 filetype = "csv"
-encoding = "big5"
+delimiter = ";"
+encoding = "utf-8"
 fields = ["Transaction Date","Time","Withdrawal","Deposit","Balance", "Description", "Destination Account", "Remark"]
-trim_top = 2
+trim_top = 0
 date_column = "Transaction Date"
 date_format = "%Y%m%d"
 
-[cathay.export]
-
+[easybank_cc.export]
 date_column = "Date"
 date_format = "%Y-%m-%d"
 column_map = {"Transaction Date" = "Date", "Withdrawal" = "Outflow","Deposit" = "Inflow","Description" = "Memo","Remark" = "Payee"}
